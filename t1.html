@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stone.io Game</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        #mainMenu {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease;
+        }
+        input, button {
+            margin: 10px;
+            padding: 10px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+        }
+        input {
+            width: 200px;
+            text-align: center;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #gameContainer {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="mainMenu">
+        <h1>Welcome to Stone.io</h1>
+        <input type="text" id="playerName" placeholder="Enter your name">
+        <button onclick="startGame()">Next</button>
+        <button onclick="playBeta()">Play Beta</button>
+    </div>
+    
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div id="levelUpMessage"></div>
+        <canvas id="confettiCanvas"></canvas>
+    </div>
+    
+    <script>
+        function startGame() {
+            let name = document.getElementById('playerName').value;
+            if (name.trim() === "") {
+                alert("Please enter your name!");
+                return;
+            }
+            localStorage.setItem("playerName", name);
+            document.getElementById('mainMenu').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('mainMenu').style.display = 'none';
+                document.getElementById('gameContainer').style.display = 'block';
+            }, 500);
+        }
+
+        function playBeta() {
+            window.location.href = "index.html";
+        }
+    </script>
+</body>
+</html>
