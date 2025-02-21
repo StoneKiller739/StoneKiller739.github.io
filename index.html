@@ -39,14 +39,36 @@
             left: 0;
             pointer-events: none;
         }
+
+        #leaderboard {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 5px;
+            width: 300px;
+            text-align: center;
+        }
+        #leaderboard ul {
+            list-style: none;
+            padding: 0;
+        }
+        #leaderboard li {
+            padding: 5px;
+            border-bottom: 1px solid #aaa;
+        }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
     <div id="levelUpMessage"></div>
+    <div id="leaderboard">
+        <h2>Leaderboard</h2>
+        <ul id="leaderboardList"></ul>
+    </div>
     <canvas id="confettiCanvas"></canvas>
     <script src="game.js"></script>
     <script src="confetti.js"></script>
+    <script src="leaderboard.js"></script>
 </body>
 </html>
 
