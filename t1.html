@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beta</title>
+    <title>beta</title>
     <style>
         body {
             display: flex;
@@ -15,6 +15,7 @@
             background-color: #808080;
             font-family: Arial, sans-serif;
             color: white;
+            position: relative;
         }
         #mainMenu {
             text-align: center;
@@ -45,7 +46,9 @@
             background-color: #0088cc;
         }
         #leaderboard {
-            margin-top: 20px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
             padding: 15px;
             background: rgba(0, 0, 0, 0.6);
             border-radius: 5px;
@@ -91,9 +94,15 @@
             }
             
             let players = JSON.parse(localStorage.getItem("leaderboard")) || [];
-            let player = { name: name, points: 0 };
-            players.push(player);
+            let existingPlayer = players.find(player => player.name === name);
+            
+            if (!existingPlayer) {
+                let player = { name: name, points: 0 };
+                players.push(player);
+            }
+            
             localStorage.setItem("leaderboard", JSON.stringify(players));
+            updateLeaderboard();
             
             window.location.href = "index.html";
         }
@@ -103,11 +112,24 @@
             leaderboardList.innerHTML = "";
             
             let players = JSON.parse(localStorage.getItem("leaderboard")) || [];
+            players.sort((a, b) => b.points - a.points);
+            
             players.forEach(player => {
                 let li = document.createElement("li");
                 li.textContent = `${player.name} - ${player.points} pts`;
                 leaderboardList.appendChild(li);
             });
+        }
+        
+        function increaseScore(name) {
+            let players = JSON.parse(localStorage.getItem("leaderboard")) || [];
+            let player = players.find(player => player.name === name);
+            
+            if (player) {
+                player.points += 10;
+                localStorage.setItem("leaderboard", JSON.stringify(players));
+                updateLeaderboard();
+            }
         }
         
         updateLeaderboard();
