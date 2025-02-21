@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beta</title>
+    <title>Ships 3D</title>
     <style>
         body {
             display: flex;
@@ -12,7 +12,7 @@
             flex-direction: column;
             height: 100vh;
             margin: 0;
-            background-color: #1a1a2e;
+            background-color: #808080;
             font-family: Arial, sans-serif;
             color: white;
         }
@@ -44,15 +44,36 @@
         button:hover {
             background-color: #0088cc;
         }
+        #leaderboard {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 5px;
+            width: 300px;
+            text-align: center;
+        }
+        #leaderboard ul {
+            list-style: none;
+            padding: 0;
+        }
+        #leaderboard li {
+            padding: 5px;
+            border-bottom: 1px solid #aaa;
+        }
     </style>
 </head>
 <body>
     <div id="mainMenu">
-        <h1>Stone.io game </h1>
+        <h1>Ships 3D</h1>
         <p>Enter a username and press ENTER</p>
         <input type="text" id="playerName" placeholder="Username" onkeypress="handleKeyPress(event)">
         <br>
         <button onclick="startGame()">Next</button>
+    </div>
+    
+    <div id="leaderboard">
+        <h2>Leaderboard</h2>
+        <ul id="leaderboardList"></ul>
     </div>
     
     <script>
@@ -68,9 +89,28 @@
                 alert("Please enter a username!");
                 return;
             }
-            localStorage.setItem("playerName", name);
+            
+            let players = JSON.parse(localStorage.getItem("leaderboard")) || [];
+            let player = { name: name, points: 0 };
+            players.push(player);
+            localStorage.setItem("leaderboard", JSON.stringify(players));
+            
             window.location.href = "index.html";
         }
+        
+        function updateLeaderboard() {
+            let leaderboardList = document.getElementById("leaderboardList");
+            leaderboardList.innerHTML = "";
+            
+            let players = JSON.parse(localStorage.getItem("leaderboard")) || [];
+            players.forEach(player => {
+                let li = document.createElement("li");
+                li.textContent = `${player.name} - ${player.points} pts`;
+                leaderboardList.appendChild(li);
+            });
+        }
+        
+        updateLeaderboard();
     </script>
 </body>
 </html>
