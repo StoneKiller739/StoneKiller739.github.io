@@ -13,7 +13,7 @@ let clans = [
 
 let offsetX = 0;
 let offsetY = 0;
-const foodThreshold = 10;  // Minimum amount of food on the map
+const foodThreshold = 30;  // Minimum amount of food on the map
 
 function gameLoop() {
   context.clearRect(0, 0, canvas.width, canvas.height);
