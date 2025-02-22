@@ -60,7 +60,7 @@ function updatePlayer() {
 
 function drawPlayer() {
   context.beginPath();
-  context.arc(canvas.width / 2, canvas.height / 2, player.size, 0, Math.PI * 2);
+  context.arc(player.x, player.y, player.size, 0, Math.PI * 2);
   context.fillStyle = playerSkin.color;
   context.fill();
   context.closePath();
@@ -112,13 +112,17 @@ function joinClan(clanName) {
 
 function generateFood(count = 50) {
   for (let i = 0; i < count; i++) {
-    food.push({ x: Math.random() * canvas.width * 2 - canvas.width, y: Math.random() * canvas.height * 2 - canvas.height, size: 5 });
+    food.push({ 
+      x: Math.random() * canvas.width, 
+      y: Math.random() * canvas.height, 
+      size: 5 
+    });
   }
 }
 
 function checkCollision() {
   food.forEach((item, index) => {
-    const dist = Math.hypot((canvas.width / 2 - (item.x - player.x + canvas.width / 2)), (canvas.height / 2 - (item.y - player.y + canvas.height / 2)));
+    const dist = Math.hypot(player.x - item.x, player.y - item.y);
     if (dist - player.size - item.size < 1) {
       food.splice(index, 1);
       player.size += 0.5;
@@ -160,10 +164,18 @@ function loadCoins() {
   const savedCoins = localStorage.getItem('coins');
   return savedCoins ? parseInt(savedCoins) : 0;
 }
+
+function loadPoints() {
+  const savedPoints = localStorage.getItem('points');
+  return savedPoints ? parseInt(savedPoints) : 0;
+}
+
+
+// Load skin (fallback to default)
+function loadSkin() {
+  const savedSkin = localStorage.getItem('skin');
+  return savedSkin ? JSON.parse(savedSkin) : null;
+}
+
 generateFood();
 gameLoop();
-
-
-
-
-
