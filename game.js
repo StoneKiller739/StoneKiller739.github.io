@@ -3,20 +3,6 @@ const context = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// Define available skins
-const skins = [
-  { name: 'Default', color: 'blue' },
-  { name: 'Red', color: 'red' },
-  { name: 'Green', color: 'green' },
-];
-
-// Load saved skin or default to the first skin
-function loadSkin() {
-  return skins[0]; // Placeholder: Implement skin-saving logic
-}
-
-let playerSkin = loadSkin();
-
 let player = {
   x: canvas.width / 2,
   y: canvas.height / 2,
