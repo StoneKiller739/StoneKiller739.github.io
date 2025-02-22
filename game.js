@@ -3,14 +3,12 @@ const context = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// Define available skins
 const skins = [
   { name: 'Default', color: 'blue' },
   { name: 'Red', color: 'red' },
   { name: 'Green', color: 'green' },
 ];
 
-// Load saved skin or default to the first skin
 let playerSkin = loadSkin() || skins[0];
 
 let player = {
@@ -22,19 +20,22 @@ let player = {
   coins: loadCoins(),
   foodEaten: 0,
   clan: null,
-  level: 1,
+  level: loadLevel(),
 };
 
 let food = [];
-let clans = [
+const foodThreshold = 10;
+const keys = {};
+let offsetX = 0, offsetY = 0;
+
+const clans = [
   { name: 'Red Clan', color: 'red', players: [] },
   { name: 'Blue Clan', color: 'blue', players: [] },
   { name: 'Green Clan', color: 'green', players: [] },
 ];
 
-let offsetX = 0;
-let offsetY = 0;
-const foodThreshold = 10;
+window.addEventListener('keydown', (e) => keys[e.key] = true);
+window.addEventListener('keyup', (e) => keys[e.key] = false);
 
 function gameLoop() {
   context.clearRect(0, 0, canvas.width, canvas.height);
@@ -52,10 +53,10 @@ function gameLoop() {
 }
 
 function updatePlayer() {
-  if (keys['w']) offsetY += player.speed;
-  if (keys['s']) offsetY -= player.speed;
-  if (keys['a']) offsetX += player.speed;
-  if (keys['d']) offsetX -= player.speed;
+  if (keys['w']) player.y -= player.speed;
+  if (keys['s']) player.y += player.speed;
+  if (keys['a']) player.x -= player.speed;
+  if (keys['d']) player.x += player.speed;
 }
 
 function drawPlayer() {
@@ -69,7 +70,7 @@ function drawPlayer() {
 function drawFood() {
   food.forEach((item) => {
     context.beginPath();
-    context.arc(item.x + offsetX, item.y + offsetY, item.size, 0, Math.PI * 2);
+    context.arc(item.x, item.y, item.size, 0, Math.PI * 2);
     context.fillStyle = 'green';
     context.fill();
     context.closePath();
@@ -82,14 +83,6 @@ function drawLeaderboard() {
   context.fillText(`Points: ${player.points}`, 10, 30);
   context.fillText(`Level: ${player.level}`, 10, 60);
   context.fillText(`Coins: ${player.coins}`, 10, 90);
-  context.fillText('Coins:', 10, 120);
-  for (let i = 0; i < player.coins; i++) {
-    context.beginPath();
-    context.arc(80 + i * 20, 115, 5, 0, Math.PI * 2);
-    context.fillStyle = 'yellow';
-    context.fill();
-    context.closePath();
-  }
 }
 
 function drawInstructions() {
@@ -97,10 +90,6 @@ function drawInstructions() {
   context.font = '20px Arial';
   context.fillText('Earn 100 points to get a higher level.', canvas.width / 2 - 180, 50);
 }
-
-const keys = {};
-window.addEventListener('keydown', (e) => keys[e.key] = true);
-window.addEventListener('keyup', (e) => keys[e.key] = false);
 
 function joinClan(clanName) {
   const clan = clans.find(c => c.name === clanName);
@@ -112,23 +101,25 @@ function joinClan(clanName) {
 
 function generateFood(count = 50) {
   for (let i = 0; i < count; i++) {
-    food.push({ x: Math.random() * canvas.width * 2 - canvas.width, y: Math.random() * canvas.height * 2 - canvas.height, size: 5 });
+    food.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: 5 });
   }
 }
 
 function checkCollision() {
   food.forEach((item, index) => {
-    const dist = Math.hypot((player.x - (item.x + offsetX)), (player.y - (item.y + offsetY)));
-    if (dist - player.size - item.size < 1) {
+    const dist = Math.hypot(player.x - item.x, player.y - item.y);
+    if (dist < player.size + item.size) {
       food.splice(index, 1);
       player.size += 0.5;
       player.points += 1;
       player.foodEaten += 2;
+
       if (player.foodEaten >= 8) {
         player.coins += 1;
         saveCoins(player.coins);
         player.foodEaten = 0;
       }
+
       if (player.clan) player.clan.points += 1;
     }
   });
@@ -138,18 +129,14 @@ function checkLevel() {
   if (player.points >= player.level * 100) {
     player.level += 1;
     player.speed += 0.5;
+    saveLevel(player.level);
     generateFood();
   }
-  // Ensure size resets every 3 levels
-  if (player.level % 3 === 0) {
-    player.size = 10;
-  }
+  if (player.level % 3 === 0) player.size = 10;
 }
 
 function checkFoodCount() {
-  if (food.length < foodThreshold) {
-    generateFood(400);
-  }
+  if (food.length < foodThreshold) generateFood(50);
 }
 
 function saveCoins(coins) {
@@ -157,12 +144,24 @@ function saveCoins(coins) {
 }
 
 function loadCoins() {
-  const savedCoins = localStorage.getItem('coins');
-  return savedCoins ? parseInt(savedCoins) : 0;
+  return parseInt(localStorage.getItem('coins')) || 0;
 }
+
+function saveLevel(level) {
+  localStorage.setItem('level', level);
+}
+
+function loadLevel() {
+  return parseInt(localStorage.getItem('level')) || 1;
+}
+
+function saveSkin(skin) {
+  localStorage.setItem('skin', JSON.stringify(skin));
+}
+
+function loadSkin() {
+  return JSON.parse(localStorage.getItem('skin')) || null;
+}
+
 generateFood();
 gameLoop();
-
-
-
-
