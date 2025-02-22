@@ -18,8 +18,8 @@ function loadSkin() {
 let playerSkin = loadSkin();
 
 let player = {
-  x: canvas.width / 5,
-  y: canvas.height / 5,
+  x: canvas.width / 2,
+  y: canvas.height / 2,
   size: 12,
   speed: 2,
   points: 0,
