@@ -17,7 +17,7 @@ let player = {
   x: canvas.width / 2,
   y: canvas.height / 2,
   size: 10,
-  speed: 2,
+  speed: 0.5,
   points: 0,
   coins: loadCoins(),
   foodEaten: 0,
