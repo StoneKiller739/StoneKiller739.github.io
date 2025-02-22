@@ -18,9 +18,9 @@ function loadSkin() {
 let playerSkin = loadSkin();
 
 let player = {
-  x: canvas.width / 2,
-  y: canvas.height / 2,
-  size: 10,
+  x: canvas.width / 5,
+  y: canvas.height / 5,
+  size: 12,
   speed: 2,
   points: 0,
   coins: loadCoins(),
@@ -31,10 +31,6 @@ let player = {
 
 let food = [];
 let clans = [
-  { name: 'Red Clan', color: 'red', players: [], points: 0 },
-  { name: 'Blue Clan', color: 'blue', players: [], points: 0 },
-  { name: 'Green Clan', color: 'green', players: [], points: 0 },
-];
 
 const foodThreshold = 10;
 
