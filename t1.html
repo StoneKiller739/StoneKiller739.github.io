@@ -81,15 +81,11 @@
     </div>
     
     <script>
+        const worker = new Worker('scoreWorker.js');
         document.addEventListener("DOMContentLoaded", loadLeaderboard);
 
-        async function loadLeaderboard() {
-            try {
-                let players = JSON.parse(localStorage.getItem("leaderboard")) || [];
-                updateLeaderboard(players);
-            } catch (error) {
-                console.error("Error loading leaderboard:", error);
-            }
+        function loadLeaderboard() {
+            worker.postMessage({ action: 'load' });
         }
         
         function handleKeyPress(event) {
@@ -104,29 +100,20 @@
                 alert("Please enter a username!");
                 return;
             }
-            
-            let players = JSON.parse(localStorage.getItem("leaderboard")) || [];
-            let player = players.find(p => p.name === name);
-            
-            if (!player) {
-                player = { name: name, points: 0 };
-                players.push(player);
-            }
-            
-            localStorage.setItem("leaderboard", JSON.stringify(players));
-            updateLeaderboard(players);
-            
+            worker.postMessage({ action: 'save', name: name });
             alert("Game starting for " + name);
             window.location.href = "index.html";
         }
         
+        worker.onmessage = function(event) {
+            if (event.data.action === 'update') {
+                updateLeaderboard(event.data.players);
+            }
+        };
+        
         function updateLeaderboard(players) {
             let leaderboardList = document.getElementById("leaderboardList");
             leaderboardList.innerHTML = "";
-            
-            players = players.filter(player => player.points > 0);
-            players.sort((a, b) => b.points - a.points);
-            
             players.forEach(player => {
                 let li = document.createElement("li");
                 li.textContent = `${player.name} - ${player.points} pts`;
