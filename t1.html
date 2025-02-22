@@ -124,6 +124,7 @@
             let leaderboardList = document.getElementById("leaderboardList");
             leaderboardList.innerHTML = "";
             
+            players = players.filter(player => player.points > 0);
             players.sort((a, b) => b.points - a.points);
             
             players.forEach(player => {
