@@ -3,8 +3,7 @@ const context = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-const playerSkin = { color: 'blue' }; // Define player skin color
-
+// Initialize the player
 let player = {
   x: canvas.width / 2,
   y: canvas.height / 2,
@@ -17,9 +16,17 @@ let player = {
   level: 1,
 };
 
-let food = []; // Initialize food array
-const foodThreshold = 50; // Define food threshold
-const clans = []; // Define clans array
+// Fix: Ensure food array is initialized
+let food = [];
+const foodThreshold = 50; // Fix: Define foodThreshold
+
+// Fix: Define a default player skin
+let playerSkin = { color: "blue" };
+
+// Handle keyboard input
+const keys = {};
+window.addEventListener("keydown", (e) => (keys[e.key] = true));
+window.addEventListener("keyup", (e) => (keys[e.key] = false));
 
 function gameLoop() {
   context.clearRect(0, 0, canvas.width, canvas.height);
@@ -37,10 +44,10 @@ function gameLoop() {
 }
 
 function updatePlayer() {
-  if (keys['w']) player.y -= player.speed;
-  if (keys['s']) player.y += player.speed;
-  if (keys['a']) player.x -= player.speed;
-  if (keys['d']) player.x += player.speed;
+  if (keys["w"]) player.y -= player.speed;
+  if (keys["s"]) player.y += player.speed;
+  if (keys["a"]) player.x -= player.speed;
+  if (keys["d"]) player.x += player.speed;
 }
 
 function drawPlayer() {
@@ -54,41 +61,46 @@ function drawPlayer() {
 function drawFood() {
   food.forEach((item) => {
     context.beginPath();
-    context.arc(item.x - player.x + canvas.width / 2, item.y - player.y + canvas.height / 2, item.size, 0, Math.PI * 2);
-    context.fillStyle = 'green';
+    context.arc(
+      item.x - player.x + canvas.width / 2,
+      item.y - player.y + canvas.height / 2,
+      item.size,
+      0,
+      Math.PI * 2
+    );
+    context.fillStyle = "green";
     context.fill();
     context.closePath();
   });
 }
 
 function drawLeaderboard() {
-  context.fillStyle = 'black';
-  context.font = '20px Arial';
+  context.fillStyle = "black";
+  context.font = "20px Arial";
   context.fillText(`Points: ${player.points}`, 10, 30);
   context.fillText(`Level: ${player.level}`, 10, 60);
   context.fillText(`Coins: ${player.coins}`, 10, 90);
-  context.fillText('Coins:', 10, 120);
+  context.fillText("Coins:", 10, 120);
+
   for (let i = 0; i < player.coins; i++) {
     context.beginPath();
     context.arc(80 + i * 20, 115, 5, 0, Math.PI * 2);
-    context.fillStyle = 'yellow';
+    context.fillStyle = "yellow";
     context.fill();
     context.closePath();
   }
 }
 
 function drawInstructions() {
-  context.fillStyle = 'black';
-  context.font = '20px Arial';
-  context.fillText('Earn 100 points to get a higher level.', canvas.width / 2 - 180, 50);
+  context.fillStyle = "black";
+  context.font = "20px Arial";
+  context.fillText("Earn 100 points to get a higher level.", canvas.width / 2 - 180, 50);
 }
 
-const keys = {};
-window.addEventListener('keydown', (e) => keys[e.key] = true);
-window.addEventListener('keyup', (e) => keys[e.key] = false);
-
 function joinClan(clanName) {
-  const clan = clans.find(c => c.name === clanName);
+  if (!window.clans) return; // Fix: Avoid error if clans are undefined
+
+  const clan = clans.find((c) => c.name === clanName);
   if (clan) {
     player.clan = clan;
     clan.players.push(player);
@@ -100,7 +112,7 @@ function generateFood(count = 50) {
     food.push({
       x: Math.random() * canvas.width * 2 - canvas.width,
       y: Math.random() * canvas.height * 2 - canvas.height,
-      size: 5
+      size: 5,
     });
   }
 }
@@ -111,12 +123,10 @@ function checkCollision() {
       canvas.width / 2 - (item.x - player.x + canvas.width / 2),
       canvas.height / 2 - (item.y - player.y + canvas.height / 2)
     );
-
     if (dist - player.size - item.size < 1) {
       food.splice(index, 1);
-      player.points += 1;
+      player.points += 1; // Increase points when food is eaten
       player.foodEaten += 2;
-
       if (player.foodEaten >= 8) {
         player.coins += 1;
         saveCoins(player.coins);
@@ -133,7 +143,6 @@ function checkLevel() {
     player.speed += 0.5;
     generateFood();
   }
-  
   if (player.level % 3 === 0) {
     player.size = 10;
   }
@@ -146,13 +155,16 @@ function checkFoodCount() {
 }
 
 function saveCoins(coins) {
-  localStorage.setItem('coins', coins);
+  localStorage.setItem("coins", coins);
 }
 
 function loadCoins() {
-  const savedCoins = localStorage.getItem('coins');
+  const savedCoins = localStorage.getItem("coins");
   return savedCoins ? parseInt(savedCoins) : 0;
 }
 
-generateFood();
-gameLoop();
+// Ensure game starts properly
+window.onload = () => {
+  generateFood();
+  gameLoop();
+};
