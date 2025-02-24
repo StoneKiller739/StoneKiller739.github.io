@@ -16,21 +16,16 @@ let player = {
   level: 1,
 };
 
-// Fix: Ensure food array is initialized
 let food = [];
-const foodThreshold = 50; // Fix: Define foodThreshold
-
-// Fix: Define a default player skin
+const foodThreshold = 50;
 let playerSkin = { color: "blue" };
 
-// Handle keyboard input
 const keys = {};
 window.addEventListener("keydown", (e) => (keys[e.key] = true));
 window.addEventListener("keyup", (e) => (keys[e.key] = false));
 
 function gameLoop() {
   context.clearRect(0, 0, canvas.width, canvas.height);
-
   updatePlayer();
   checkLevel();
   checkFoodCount();
@@ -39,7 +34,6 @@ function gameLoop() {
   checkCollision();
   drawLeaderboard();
   drawInstructions();
-
   requestAnimationFrame(gameLoop);
 }
 
@@ -80,31 +74,12 @@ function drawLeaderboard() {
   context.fillText(`Points: ${player.points}`, 10, 30);
   context.fillText(`Level: ${player.level}`, 10, 60);
   context.fillText(`Coins: ${player.coins}`, 10, 90);
-  context.fillText("Coins:", 10, 120);
-
-  for (let i = 0; i < player.coins; i++) {
-    context.beginPath();
-    context.arc(80 + i * 20, 115, 5, 0, Math.PI * 2);
-    context.fillStyle = "yellow";
-    context.fill();
-    context.closePath();
-  }
 }
 
 function drawInstructions() {
   context.fillStyle = "black";
   context.font = "20px Arial";
-  context.fillText("Earn 100 points to get a higher level.", canvas.width / 2 - 180, 50);
-}
-
-function joinClan(clanName) {
-  if (!window.clans) return; // Fix: Avoid error if clans are undefined
-
-  const clan = clans.find((c) => c.name === clanName);
-  if (clan) {
-    player.clan = clan;
-    clan.players.push(player);
-  }
+  context.fillText("Earn 100 points to level up.", canvas.width / 2 - 180, 50);
 }
 
 function generateFood(count = 50) {
@@ -125,14 +100,13 @@ function checkCollision() {
     );
     if (dist - player.size - item.size < 1) {
       food.splice(index, 1);
-      player.points += 1; // Increase points when food is eaten
-      player.foodEaten += 2;
-      if (player.foodEaten >= 8) {
+      player.points += 1;
+      player.foodEaten += 1;
+      player.size += 0.2; // Player grows with each food eaten
+      if (player.foodEaten % 8 === 0) {
         player.coins += 1;
         saveCoins(player.coins);
-        player.foodEaten = 0;
       }
-      if (player.clan) player.clan.points += 1;
     }
   });
 }
@@ -142,9 +116,9 @@ function checkLevel() {
     player.level += 1;
     player.speed += 0.5;
     generateFood();
-  }
-  if (player.level % 3 === 0) {
-    player.size = 10;
+    if (player.level % 3 === 0) {
+      player.size = 10; // Reset size every level 3
+    }
   }
 }
 
@@ -163,7 +137,6 @@ function loadCoins() {
   return savedCoins ? parseInt(savedCoins) : 0;
 }
 
-// Ensure game starts properly
 window.onload = () => {
   generateFood();
   gameLoop();
