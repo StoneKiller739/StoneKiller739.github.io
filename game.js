@@ -3,17 +3,16 @@ const context = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// Initialize the player
+// Load saved player data or set defaults
 let player = {
   x: canvas.width / 2,
   y: canvas.height / 2,
-  size: 10,
+  size: parseFloat(localStorage.getItem("size")) || 10,
   speed: 2,
-  points: 0,
-  coins: loadCoins(),
+  points: parseInt(localStorage.getItem("points")) || 0,
+  coins: parseInt(localStorage.getItem("coins")) || 0,
   foodEaten: 0,
-  clan: null,
-  level: 1,
+  level: parseInt(localStorage.getItem("level")) || 1,
 };
 
 let food = [];
@@ -82,13 +81,16 @@ function drawInstructions() {
   context.fillText("Earn 100 points to level up.", canvas.width / 2 - 180, 50);
 }
 
+// Generate food **near** the player
 function generateFood(count = 50) {
   for (let i = 0; i < count; i++) {
-    food.push({
-      x: Math.random() * canvas.width * 2 - canvas.width,
-      y: Math.random() * canvas.height * 2 - canvas.height,
-      size: 5,
-    });
+    let angle = Math.random() * Math.PI * 2; // Random direction
+    let distance = Math.random() * 200 + 50; // 50-250 pixels away
+
+    let foodX = player.x + Math.cos(angle) * distance;
+    let foodY = player.y + Math.sin(angle) * distance;
+
+    food.push({ x: foodX, y: foodY, size: 5 });
   }
 }
 
@@ -99,14 +101,23 @@ function checkCollision() {
       canvas.height / 2 - (item.y - player.y + canvas.height / 2)
     );
     if (dist - player.size - item.size < 1) {
-      food.splice(index, 1);
       player.points += 1;
       player.foodEaten += 1;
-      player.size += 0.2; // Player grows with each food eaten
+      player.size += 0.2;
+
       if (player.foodEaten % 8 === 0) {
         player.coins += 1;
-        saveCoins(player.coins);
+        saveData();
       }
+
+      // Instead of respawning food at the same spot, spawn new food **near the player**
+      let angle = Math.random() * Math.PI * 2;
+      let distance = Math.random() * 200 + 50;
+      food[index] = {
+        x: player.x + Math.cos(angle) * distance,
+        y: player.y + Math.sin(angle) * distance,
+        size: 5,
+      };
     }
   });
 }
@@ -116,8 +127,10 @@ function checkLevel() {
     player.level += 1;
     player.speed += 0.5;
     generateFood();
+    saveData();
+
     if (player.level % 3 === 0) {
-      player.size = 10; // Reset size every level 3
+      player.size = 10;
     }
   }
 }
@@ -128,13 +141,11 @@ function checkFoodCount() {
   }
 }
 
-function saveCoins(coins) {
-  localStorage.setItem("coins", coins);
-}
-
-function loadCoins() {
-  const savedCoins = localStorage.getItem("coins");
-  return savedCoins ? parseInt(savedCoins) : 0;
+function saveData() {
+  localStorage.setItem("level", player.level);
+  localStorage.setItem("points", player.points);
+  localStorage.setItem("coins", player.coins);
+  localStorage.setItem("size", player.size);
 }
 
 window.onload = () => {
