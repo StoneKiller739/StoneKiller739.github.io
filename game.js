@@ -70,9 +70,9 @@ function drawFood() {
 function drawLeaderboard() {
   context.fillStyle = "black";
   context.font = "20px Arial";
-  context.fillText(Points: ${player.points}, 10, 30);
-  context.fillText(Level: ${player.level}, 10, 60);
-  context.fillText(Coins: ${player.coins}, 10, 90);
+  context.fillText(`Points: ${player.points}`, 10, 30);
+  context.fillText(`Level: ${player.level}`, 10, 60);
+  context.fillText(`Coins: ${player.coins}`, 10, 90);
 }
 
 function drawInstructions() {
