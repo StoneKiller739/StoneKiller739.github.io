@@ -16,7 +16,7 @@ let player = {
 };
 
 let food = [];
-const foodThreshold = 50;
+const foodThreshold = 30;
 let playerSkin = { color: "blue" };
 
 const keys = {};
