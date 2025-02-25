@@ -177,4 +177,4 @@ function saveData() {
 window.onload = () => {
   generateFood(foodThreshold);
   gameLoop();
-}; 
+};
