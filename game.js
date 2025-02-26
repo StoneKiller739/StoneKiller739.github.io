@@ -16,7 +16,7 @@ let player = {
 };
 
 let food = new Set();
-const foodThreshold = 30;
+const foodThreshold = 20;
 let playerSkin = { color: "blue" };
 
 const keys = {};
@@ -81,56 +81,17 @@ function drawInstructions() {
   context.fillText("Earn 100 points to level up.", canvas.width / 2 - 180, 50);
 }
 
-// Generate food **evenly distributed** near the player and **prevent overlap**
+// Generate food near the player, evenly distributed and avoiding overlap
 function generateFood(count = 50) {
   while (food.size < count) {
-    let angle = Math.random() * Math.PI * 2;
-    let distance = Math.random() * 150 + 50; // 50-200 pixels away
-
-    let foodX = player.x + Math.cos(angle) * distance;
-    let foodY = player.y + Math.sin(angle) * distance;
-
-    // Prevent food overlap by checking distance to existing food
-    let isOverlapping = [...food].some(
-      (item) => Math.hypot(item.x - foodX, item.y - foodY) < 10
-    );
-
-    if (!isOverlapping) {
-      food.add({ x: foodX, y: foodY, size: 5 });
-    }
+    spawnFoodNearPlayer();
   }
 }
 
-// Handle food collision
-function checkCollision() {
-  food.forEach((item) => {
-    const dist = Math.hypot(
-      (item.x - player.x),
-      (item.y - player.y)
-    );
-
-    if (dist - player.size - item.size < 1) {
-      player.points += 1;
-      player.foodEaten += 1;
-      player.size += 0.2;
-
-      if (player.foodEaten % 8 === 0) {
-        player.coins += 1;
-        saveData();
-      }
-
-      // Remove old food and spawn new food near player
-      food.delete(item);
-      spawnFoodNearPlayer();
-    }
-  });
-}
-
-// Spawn a single food near player when one is eaten
 function spawnFoodNearPlayer() {
   let newFood;
   let attempts = 0;
-  
+
   do {
     let angle = Math.random() * Math.PI * 2;
     let distance = Math.random() * 150 + 50;
@@ -141,11 +102,31 @@ function spawnFoodNearPlayer() {
     };
     attempts++;
   } while (
-    [...food].some((item) => Math.hypot(item.x - newFood.x, item.y - newFood.y) < 10) &&
-    attempts < 10
+    attempts < 10 &&
+    [...food].some((item) => Math.hypot(item.x - newFood.x, item.y - newFood.y) < 15)
   );
 
-  food.add(newFood);
+  if (attempts < 10) food.add(newFood);
+}
+
+// Handle food collision
+function checkCollision() {
+  food.forEach((item) => {
+    const dist = Math.hypot(item.x - player.x, item.y - player.y);
+    if (dist - player.size - item.size < 1) {
+      player.points += 1;
+      player.foodEaten += 1;
+      player.size += 0.2;
+
+      if (player.foodEaten % 8 === 0) {
+        player.coins += 1;
+        saveData();
+      }
+
+      food.delete(item);
+      spawnFoodNearPlayer();
+    }
+  });
 }
 
 function checkLevel() {
