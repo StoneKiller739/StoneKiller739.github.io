@@ -3,6 +3,10 @@ const context = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+// Play background music
+const backgroundMusic = document.getElementById("background-music");
+backgroundMusic.play();
+
 // Load saved player data or set defaults
 let player = {
   x: canvas.width / 2,
