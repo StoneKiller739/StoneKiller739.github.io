@@ -5,7 +5,7 @@ canvas.height = window.innerHeight;
 
 // Play background music
 const backgroundMusic = document.getElementById("background-music");
-backgroundMusic.play();
+backgroundMusic.play(https://apiv17dlp.cnvmp3.cc/downloads/download.php?file=/all%20of%20a%20sudden,%20everything%20becomes%20alright...%204.mp3);
 
 // Load saved player data or set defaults
 let player = {
