@@ -3,9 +3,10 @@ const context = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// Play background music
+
 const backgroundMusic = document.getElementById("https://apiv17dlp.cnvmp3.cc/downloads/download.php?file=/all%20of%20a%20sudden,%20everything%20becomes%20alright...%204.mp3");
 backgroundMusic.play(https://apiv17dlp.cnvmp3.cc/downloads/download.php?file=/all%20of%20a%20sudden,%20everything%20becomes%20alright...%204.mp3);
+
 
 // Load saved player data or set defaults
 let player = {
@@ -85,38 +86,34 @@ function drawInstructions() {
   context.fillText("Earn 100 points to level up.", canvas.width / 2 - 180, 50);
 }
 
-// Generate food near the player, evenly distributed and avoiding overlap
+// Generate food **evenly distributed** near the player and **prevent overlap**
 function generateFood(count = 50) {
   while (food.size < count) {
-    spawnFoodNearPlayer();
-  }
-}
-
-function spawnFoodNearPlayer() {
-  let newFood;
-  let attempts = 0;
-
-  do {
     let angle = Math.random() * Math.PI * 2;
-    let distance = Math.random() * 150 + 50;
-    newFood = {
-      x: player.x + Math.cos(angle) * distance,
-      y: player.y + Math.sin(angle) * distance,
-      size: 5,
-    };
-    attempts++;
-  } while (
-    attempts < 10 &&
-    [...food].some((item) => Math.hypot(item.x - newFood.x, item.y - newFood.y) < 15)
-  );
+    let distance = Math.random() * 150 + 50; // 50-200 pixels away
 
-  if (attempts < 10) food.add(newFood);
+    let foodX = player.x + Math.cos(angle) * distance;
+    let foodY = player.y + Math.sin(angle) * distance;
+
+    // Prevent food overlap by checking distance to existing food
+    let isOverlapping = [...food].some(
+      (item) => Math.hypot(item.x - foodX, item.y - foodY) < 10
+    );
+
+    if (!isOverlapping) {
+      food.add({ x: foodX, y: foodY, size: 5 });
+    }
+  }
 }
 
 // Handle food collision
 function checkCollision() {
   food.forEach((item) => {
-    const dist = Math.hypot(item.x - player.x, item.y - player.y);
+    const dist = Math.hypot(
+      (item.x - player.x),
+      (item.y - player.y)
+    );
+
     if (dist - player.size - item.size < 1) {
       player.points += 1;
       player.foodEaten += 1;
@@ -127,10 +124,33 @@ function checkCollision() {
         saveData();
       }
 
+      // Remove old food and spawn new food near player
       food.delete(item);
       spawnFoodNearPlayer();
     }
   });
+}
+
+// Spawn a single food near player when one is eaten
+function spawnFoodNearPlayer() {
+  let newFood;
+  let attempts = 0;
+  
+  do {
+    let angle = Math.random() * Math.PI * 2;
+    let distance = Math.random() * 150 + 50;
+    newFood = {
+      x: player.x + Math.cos(angle) * distance,
+      y: player.y + Math.sin(angle) * distance,
+      size: 5,
+    };
+    attempts++;
+  } while (
+    [...food].some((item) => Math.hypot(item.x - newFood.x, item.y - newFood.y) < 10) &&
+    attempts < 10
+  );
+
+  food.add(newFood);
 }
 
 function checkLevel() {
