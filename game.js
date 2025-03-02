@@ -37,11 +37,11 @@ function gameLoop() {
 }
 
 function updatePlayer() {
-  if (keys["w"]) player.y -= player.speed;
-  if (keys["s"]) player.y += player.speed;
-  if (keys["a"]) player.x -= player.speed;
-  if (keys["d"]) player.x += player.speed;
-}
+   if (keys["w"] || keys["ArrowUp"]) player.y -= player.speed;
+    if (keys["s"] || keys["ArrowDown"]) player.y += player.speed;
+    if (keys["a"] || keys["ArrowLeft"]) player.x -= player.speed;
+    if (keys["d"] || keys["ArrowRight"]) player.x += player.speed;
+  }
 
 function drawPlayer() {
   context.beginPath();
