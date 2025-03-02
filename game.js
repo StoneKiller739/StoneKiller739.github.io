@@ -80,6 +80,8 @@
         <ul id="leaderboardList"></ul>
     </div>
     
+    <canvas id="gameCanvas"></canvas>
+
     <script>
         const worker = new Worker('scoreWorker.js');
         document.addEventListener("DOMContentLoaded", loadLeaderboard);
@@ -270,4 +272,9 @@
         function checkFoodCount() {
             if (food.size < foodThreshold) {
                 generateFood(foodThreshold - food.size);
+            }
+        }
+
+        // Define the saveData function
+        function saveData()
 
