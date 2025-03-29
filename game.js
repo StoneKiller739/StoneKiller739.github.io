@@ -18,8 +18,8 @@ let player = {
 let food = new Set();
 const foodThreshold = 20;
 let playerSkin = { color: "blue" };
-const keys = {};
 
+const keys = {};
 window.addEventListener("keydown", (e) => (keys[e.key] = true));
 window.addEventListener("keyup", (e) => (keys[e.key] = false));
 
@@ -37,10 +37,10 @@ function gameLoop() {
 }
 
 function updatePlayer() {
-  if (keys["w"] && player.y > 0) player.y -= player.speed;
-  if (keys["s"] && player.y < canvas.height) player.y += player.speed;
-  if (keys["a"] && player.x > 0) player.x -= player.speed;
-  if (keys["d"] && player.x < canvas.width) player.x += player.speed;
+  if (keys["w"]) player.y -= player.speed;
+  if (keys["s"]) player.y += player.speed;
+  if (keys["a"]) player.x -= player.speed;
+  if (keys["d"]) player.x += player.speed;
 }
 
 function drawPlayer() {
@@ -54,7 +54,13 @@ function drawPlayer() {
 function drawFood() {
   food.forEach((item) => {
     context.beginPath();
-    context.arc(item.x - player.x + canvas.width / 2, item.y - player.y + canvas.height / 2, item.size, 0, Math.PI * 2);
+    context.arc(
+      item.x - player.x + canvas.width / 2,
+      item.y - player.y + canvas.height / 2,
+      item.size,
+      0,
+      Math.PI * 2
+    );
     context.fillStyle = "green";
     context.fill();
     context.closePath();
@@ -64,9 +70,9 @@ function drawFood() {
 function drawLeaderboard() {
   context.fillStyle = "black";
   context.font = "20px Arial";
-  context.fillText(`Points: ${player.points}`, 10, 30);
-  context.fillText(`Level: ${player.level}`, 10, 60);
-  context.fillText(`Coins: ${player.coins}`, 10, 90);
+  context.fillText(Points: ${player.points}, 10, 30);
+  context.fillText(Level: ${player.level}, 10, 60);
+  context.fillText(Coins: ${player.coins}, 10, 90);
 }
 
 function drawInstructions() {
@@ -75,23 +81,35 @@ function drawInstructions() {
   context.fillText("Earn 100 points to level up.", canvas.width / 2 - 180, 50);
 }
 
+// Generate food **evenly distributed** near the player and **prevent overlap**
 function generateFood(count = 50) {
   while (food.size < count) {
     let angle = Math.random() * Math.PI * 2;
-    let distance = Math.random() * 150 + 50;
+    let distance = Math.random() * 150 + 50; // 50-200 pixels away
+
     let foodX = player.x + Math.cos(angle) * distance;
     let foodY = player.y + Math.sin(angle) * distance;
 
-    let isOverlapping = [...food].some((item) => Math.hypot(item.x - foodX, item.y - foodY) < 10);
+    // Prevent food overlap by checking distance to existing food
+    let isOverlapping = [...food].some(
+      (item) => Math.hypot(item.x - foodX, item.y - foodY) < 10
+    );
+
     if (!isOverlapping) {
       food.add({ x: foodX, y: foodY, size: 5 });
     }
   }
 }
 
+// Handle food collision
 function checkCollision() {
   food.forEach((item) => {
-    if (Math.hypot(item.x - player.x, item.y - player.y) < player.size + item.size) {
+    const dist = Math.hypot(
+      (item.x - player.x),
+      (item.y - player.y)
+    );
+
+    if (dist - player.size - item.size < 1) {
       player.points += 1;
       player.foodEaten += 1;
       player.size += 0.2;
@@ -101,15 +119,18 @@ function checkCollision() {
         saveData();
       }
 
+      // Remove old food and spawn new food near player
       food.delete(item);
       spawnFoodNearPlayer();
     }
   });
 }
 
+// Spawn a single food near player when one is eaten
 function spawnFoodNearPlayer() {
   let newFood;
   let attempts = 0;
+  
   do {
     let angle = Math.random() * Math.PI * 2;
     let distance = Math.random() * 150 + 50;
@@ -119,7 +140,10 @@ function spawnFoodNearPlayer() {
       size: 5,
     };
     attempts++;
-  } while ([...food].some((item) => Math.hypot(item.x - newFood.x, item.y - newFood.y) < 10) && attempts < 10);
+  } while (
+    [...food].some((item) => Math.hypot(item.x - newFood.x, item.y - newFood.y) < 10) &&
+    attempts < 10
+  );
 
   food.add(newFood);
 }
@@ -130,6 +154,7 @@ function checkLevel() {
     player.speed += 0.5;
     generateFood();
     saveData();
+
     if (player.level % 3 === 0) {
       player.size = 10;
     }
